@@ -33,7 +33,7 @@
                 }	
 
                 if( $data === false) {
-                    $Exitcode = Return_errors(mysqli_errors());
+                    $Exitcode = mysqli_errors();
                 } else {																
                     
                     $Exitcode = 100;	
@@ -70,7 +70,7 @@
                 }	
 
                 if( $data === false) {
-                    $Exitcode = Return_errors(mysqli_errors());
+                    $Exitcode = mysqli_errors();
                 } else {																
                     
                     $Exitcode = 100;	
