@@ -14,6 +14,20 @@
     
     function AddRecord(){
         return 'INSERT INTO mijntesttabel (waarden) values (?)';
+    }  
+    
+    function AddPhoto(){
+        return 'INSERT INTO mijntesttabel (PhotoPath) values (?)';
+    }  
+
+    function LoadPhotoPath(){
+        return 'SELECT PhotoPath FROM `mijntesttabel` WHERE ROWID=?';
+    }  
+
+    function UpdateRecord(){
+        return 'UPDATE mijntesttabel 
+                SET waarden=? 
+                WHERE ROWID=?';
     }    
 
 ?>

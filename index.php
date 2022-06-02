@@ -32,7 +32,7 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
 
                 $result = $stmt->get_result();
                 $data = $result->fetch_all(MYSQLI_ASSOC);
-                
+
                 mysqli_free_result($result);
             }
             else {
@@ -44,7 +44,7 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
             }
             else {
 
-                $Exitcode = 100;                
+                $Exitcode = 100;
             }
 
             if ($Exitcode == 100) {
@@ -71,13 +71,13 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
                 $Exitcode = 100;
             }
 
-            if ($Exitcode == 100) {                
+            if ($Exitcode == 100) {
                 if ($data) {
                     while ($row = mysqli_fetch_row($data)) {
-                       $result =  $row[0];
+                        $result = $row[0];
                     }
-                 }
-                
+                }
+
                 echo json_encode($result);
             }
             else {
@@ -100,13 +100,16 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
                 $Exitcode = 100;
             }
 
-            if ($Exitcode == 100) {                
+            if ($Exitcode == 100) {
                 if ($data) {
+                    $result = array();
+
                     while ($row = mysqli_fetch_row($data)) {
-                        $result =  $row[0];
+                        array_push($result, $row[0]);
                     }
                 }
-                
+
+                //echo json_encode(array("Data" => $result));
                 echo json_encode($result);
             }
             else {
@@ -114,7 +117,7 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
             }
 
             CloseConnection();
-        break;            
+            break;
         case 'AddRecord':
             ;
             // Richt de (eventueel) geparameteriseerde query in. Als geen parameters, dan zonder uitvoeren.					
@@ -130,6 +133,49 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
 
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param('s', $_POST["params"]);
+                $stmt->execute();
+
+            }
+            else {
+                $data = mysqli_query($conn, $sql);
+            }
+
+            if ($data === false) {
+                $Exitcode = mysqli_error($conn);
+            }
+            else {
+
+                $Exitcode = 100;
+            }
+
+            if ($Exitcode == 100) {
+                echo json_encode(array("Exitcode" => $Exitcode, "Result" => $data));
+            }
+            else {
+                echo json_encode(array("Exitcode" => $Exitcode));
+            }
+
+            CloseConnection();
+            break;
+        case 'UpdateRecord':
+            ;
+            // Richt de (eventueel) geparameteriseerde query in. Als geen parameters, dan zonder uitvoeren.					
+            $sql = $_POST["function2call"]();
+
+            if (isset($_POST["params"])) {
+                if (is_array($_POST["params"])) {
+                    $params = $_POST["params"];
+                }
+                else {
+                    $params = array($_POST["params"]);
+                }
+
+                $stmt = $conn->prepare($sql);
+                $params=json_decode($_POST["params"]);
+                $par1=$params[0]["id"];
+                $par2=$params[0]["waarde"];
+                $stmt->bind_param('i', $par1);
+                $stmt->bind_param('s', $par2);
                 $stmt->execute();
 
             }
