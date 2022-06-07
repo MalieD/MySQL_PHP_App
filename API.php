@@ -1,6 +1,6 @@
 
 <?php
-include "./Source/connection.php";
+include "Source/connection.php";
 include "QueryFunctions.php";
 
 //?function2call=GetAllIDs
@@ -159,7 +159,7 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
 
             CloseConnection();
             break;
-        case 'UpdateRecord':            
+        case 'UpdateRecord':
             ;
             // Richt de (eventueel) geparameteriseerde query in. Als geen parameters, dan zonder uitvoeren.					
             $sql = $_POST["function2call"]();
@@ -173,9 +173,9 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
                 }
 
                 $stmt = $conn->prepare($sql);
-                $params=json_decode($_POST["params"]);
-                $par1=$params[0]["id"];
-                $par2=$params[0]["waarde"];
+                $params = json_decode($_POST["params"]);
+                $par1 = $params[0]["id"];
+                $par2 = $params[0]["waarde"];
                 $stmt->bind_param('i', $par1);
                 $stmt->bind_param('s', $par2);
                 $stmt->execute();
@@ -203,9 +203,8 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
             CloseConnection();
             break;
         case 'GetThePicture':
-            $imagedata = file_get_contents('./Plaatjes/abc.jpeg');
+            $imagedata = file_get_contents('Plaatjes/abc.jpeg');
             $base64 = base64_encode($imagedata);
-            echo "test";
             echo $base64;
 
             break;
@@ -213,6 +212,9 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
             header("HTTP/1.1 404");
             break;
     }
+}
+else {
+    echo "Well, it seems like this didn't really work...";
 }
 
 
