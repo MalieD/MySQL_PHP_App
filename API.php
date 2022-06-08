@@ -203,7 +203,11 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
             CloseConnection();
             break;
         case 'GetThePicture':
-            $imagedata = file_get_contents('Plaatjes/abc.jpeg');
+
+            $folder = 'uploads';
+            $files = scandir($folder, SCANDIR_SORT_ASCENDING);
+            $file = $folder . '/' . $files[0];
+            $imagedata = file_get_contents($file);
             $base64 = base64_encode($imagedata);
             echo $base64;
 
