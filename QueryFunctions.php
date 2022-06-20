@@ -2,7 +2,7 @@
 
 function ExecQuery()
 {
-    return 'SELECT waarden FROM mijntesttabel WHERE ROWID=?';
+    return 'SELECT waarden FROM `mijntesttabel` WHERE ROWID=?';
 }
 
 function GetNewestRecord()
@@ -12,7 +12,7 @@ function GetNewestRecord()
 
 function GetAllIDs()
 {
-    return 'SELECT ROWID FROM `mijntesttabel` ORDER BY ROWID';
+    return 'SELECT * FROM `mijntesttabel` ORDER BY ROWID';
 }
 
 function AddRecord()

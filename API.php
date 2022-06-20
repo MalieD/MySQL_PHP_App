@@ -18,7 +18,7 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
         case 'ExecQuery':
             ;
             // Richt de (eventueel) geparameteriseerde query in. Als geen parameters, dan zonder uitvoeren.					
-            $sql = $_POST["function2call"]();
+            $sql = $_POST["queryFunction"]();
 
             if (isset($_POST["params"])) {
                 if (is_array($_POST["params"])) {
@@ -45,12 +45,30 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
                 $Exitcode = mysqli_error($conn);
             }
             else {
+                // Achterhaal alle veldnamen
+                foreach (mysqli_fetch_fields($data) as $fieldMetadata) {
+                    foreach ($fieldMetadata as $name => $value) {
+                        if ($name == "name") {
+                            $fieldNames[] = $value;
+                        }
+                    }
+                }
+
+                // Haal voor elk veld naam, de veld waarde op en neem deze over in de dataArray
+                $data_arr = array();
+
+                while ($row = mysqli_fetch_array($data, MYSQLI_ASSOC)) {
+                    for ($i = 0; $i < count($fieldNames); $i++) {
+                        $data_arr[] = array($fieldNames[$i] => $row[$i]);
+                    }                    
+                }
 
                 $Exitcode = 100;
+                mysqli_free_result($data);                
             }
 
             if ($Exitcode == 100) {
-                echo json_encode(array("Exitcode" => $Exitcode, "Result" => $data));
+                echo json_encode(array("Exitcode" => $Exitcode, "data" => $data_arr));
             }
             else {
                 echo json_encode(array("Exitcode" => $Exitcode));
@@ -205,11 +223,41 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
         case 'GetThePicture':
 
             $folder = 'uploads';
-            $files = scandir($folder, SCANDIR_SORT_ASCENDING);
+            $files = scandir($folder, true);
             $file = $folder . '/' . $files[0];
             $imagedata = file_get_contents($file);
             $base64 = base64_encode($imagedata);
             echo $base64;
+
+            break;
+        case 'CheckPassword':
+            if (isset($_POST["params"])) {
+                if (is_array($_POST["params"])) {
+                    $params = $_POST["params"];
+                }
+                else {
+                    $params = array($_POST["params"]);
+                }
+
+                if ($params[0] == DevellopSitePassword()) {
+                    $result = true;
+                }
+                else {
+                    $result = false;
+                }
+
+                $Exitcode = 100;
+            }
+            else {
+                $Exitcode = 404;
+            }
+
+            if ($Exitcode == 100) {
+                echo json_encode(array("Exitcode" => $Exitcode, "Result" => $result));
+            }
+            else {
+                echo json_encode(array("Exitcode" => $Exitcode));
+            }
 
             break;
         default:

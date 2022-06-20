@@ -1,3 +1,8 @@
 function run() {
-  StartMatrix();
+  StartMatrix();  
+  TestExecuteQuery();
+}
+
+function ShowAllPictures(){
+    
 }
