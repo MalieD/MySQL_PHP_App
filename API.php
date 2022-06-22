@@ -60,11 +60,11 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
                 while ($row = mysqli_fetch_array($data, MYSQLI_ASSOC)) {
                     for ($i = 0; $i < count($fieldNames); $i++) {
                         $data_arr[] = array($fieldNames[$i] => $row[$i]);
-                    }                    
+                    }
                 }
 
                 $Exitcode = 100;
-                mysqli_free_result($data);                
+                mysqli_free_result($data);
             }
 
             if ($Exitcode == 100) {
@@ -230,6 +230,21 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
             echo $base64;
 
             break;
+        case 'GetThePictureNames':
+            $myArray = listAllFiles("uploads");
+            $Exitcode = 100;
+            $myJson = json_encode(array("Exitcode" => $Exitcode, "data" => $myArray), true);            
+            echo $myJson;            
+            break;
+        case 'GetThePictures':
+            $folder = 'uploads';
+            $files = scandir($folder, true);
+            $file = $folder . '/' . $files[0];
+            $imagedata = file_get_contents($file);
+            $base64 = base64_encode($imagedata);
+            echo $base64;
+
+            break;
         case 'CheckPassword':
             if (isset($_POST["params"])) {
                 if (is_array($_POST["params"])) {
@@ -269,7 +284,24 @@ else {
     echo "Well, it seems like this didn't really work...";
 }
 
+function listAllFiles($dir)
+{
+    $array = array_diff(scandir($dir), array('.', '..'));
 
+    foreach ($array as $item) {
+        $item = $dir . $item;
+    }
+
+    unset($item);
+
+    foreach ($array as $item) {
+        if (is_dir($item)) {
+            $array = array_merge($array, listAllFiles($item . DIRECTORY_SEPARATOR));
+        }
+    }
+
+    return $array;
+}
 
 ?>
 
