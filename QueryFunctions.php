@@ -12,7 +12,17 @@ function GetNewestRecord()
 
 function GetAllIDs()
 {
-    return 'SELECT * FROM `mijntesttabel` ORDER BY ROWID';
+    return 'SELECT ROWID FROM `mijntesttabel` ORDER BY ROWID';
+}
+
+function GetWaardenByROWID()
+{
+    return 'SELECT waarden FROM `mijntesttabel` WHERE ROWID=?';
+}
+
+function GetAllByROWID()
+{
+    return 'SELECT * FROM `mijntesttabel` WHERE ROWID=?';
 }
 
 function AddRecord()

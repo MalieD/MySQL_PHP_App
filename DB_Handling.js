@@ -1,9 +1,20 @@
 var myData;
 
 function TestExecuteQuery() {
-  $queryFunction = "GetAllIDs";
-  $params = null;
-  ExecQuery($queryFunction, $params, test);
+  $params=Array();  
+  $queryFunction = "GetAllByROWID";    
+
+  AddParam($params, "integer", 4);
+  ExecQuery($queryFunction, $params, testCalback);
+}
+
+function testCalback(data) {
+  myData = data;
+  console.log(myData);
+}
+
+function AddParam(Params, DataType, Value){  
+  Params.push({dataType: DataType, value: Value});
 }
 
 function ExecQuery(myQuery, myParams, callback) {
@@ -35,14 +46,11 @@ function ExecQuery(myQuery, myParams, callback) {
         callback(response.data);
       }
     },
-    error: function (response) {
-      debugger;
-      alert("Error-> " + response.Exitcode);
+    error: function (response) {    
+      //alert("Error-> " + response.Exitcode);
+      console.log("Error-> " + response.Exitcode);
     },
   });
 }
 
-function test(data) {
-  myData = data;
-  console.log(myData);
-}
+

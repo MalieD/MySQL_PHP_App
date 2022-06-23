@@ -16,67 +16,66 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
     switch ($function2call) {
         // Bestanden hoofdpagina.
         case 'ExecQuery':
-            ;
+            ;            
             // Richt de (eventueel) geparameteriseerde query in. Als geen parameters, dan zonder uitvoeren.					
             $sql = $_POST["queryFunction"]();
 
+            $stmt = $conn->prepare($sql);
+
             if (isset($_POST["params"])) {
-                if (is_array($_POST["params"])) {
-                    $params = $_POST["params"];
-                }
-                else {
-                    $params = array($_POST["params"]);
-                }
+                $params = $_POST["params"];
 
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param('i', $_POST["params"]);
-                $stmt->execute();
+                foreach ($params as $value) {
 
-                $result = $stmt->get_result();
-                $data = $result->fetch_all(MYSQLI_ASSOC);
-
-                mysqli_free_result($result);
-            }
-            else {
-                $data = mysqli_query($conn, $sql);
-            }
-
-            if ($data === false) {
-                $Exitcode = mysqli_error($conn);
-            }
-            else {
-                // Achterhaal alle veldnamen
-                foreach (mysqli_fetch_fields($data) as $fieldMetadata) {
-                    foreach ($fieldMetadata as $name => $value) {
-                        if ($name == "name") {
-                            $fieldNames[] = $value;
-                        }
+                    if ($value["dataType"] == "string") {
+                        $value["dataType"] = "s";
                     }
-                }
-
-                // Haal voor elk veld naam, de veld waarde op en neem deze over in de dataArray
-                $data_arr = array();
-
-                while ($row = mysqli_fetch_array($data, MYSQLI_ASSOC)) {
-                    for ($i = 0; $i < count($fieldNames); $i++) {
-                        $data_arr[] = array($fieldNames[$i] => $row[$i]);
+                    else if ($value["dataType"] == "integer") {
+                        $value["dataType"] = "i";
                     }
-                }
 
+                    $stmt->bind_param($value["dataType"], $value["value"]);
+                }
+            }
+
+            $stmt->execute();
+
+            $result = $stmt->get_result();
+            $data = $result->fetch_all(MYSQLI_ASSOC);
+
+            if ($data !== false) {
                 $Exitcode = 100;
-                mysqli_free_result($data);
-            }
-
-            if ($Exitcode == 100) {
-                echo json_encode(array("Exitcode" => $Exitcode, "data" => $data_arr));
+                echo json_encode(array("Exitcode" => $Exitcode, "data" => $data));
             }
             else {
+                $Exitcode = mysqli_error($conn);
                 echo json_encode(array("Exitcode" => $Exitcode));
             }
 
             CloseConnection();
-            break;
 
+            mysqli_free_result($result);
+            unset($data);
+            break;
+        case 'ExecQuery2':
+            ;
+            $data = newExecQuery($_POST["queryFunction"](), $_POST["params"]);
+
+            
+            if ($data !== false) {
+                $Exitcode = 100;
+                echo json_encode(array("Exitcode" => $Exitcode, "data" => $data));
+            }
+            else {
+                $Exitcode = mysqli_error($conn);
+                echo json_encode(array("Exitcode" => $Exitcode));
+            }
+
+            CloseConnection();
+
+            mysqli_free_result($result);
+            unset($data);
+            break;
         case 'GetNewestRecord':
             ;
             // Richt de (eventueel) geparameteriseerde query in. Als geen parameters, dan zonder uitvoeren.					
@@ -233,8 +232,8 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
         case 'GetThePictureNames':
             $myArray = listAllFiles("uploads");
             $Exitcode = 100;
-            $myJson = json_encode(array("Exitcode" => $Exitcode, "data" => $myArray), true);            
-            echo $myJson;            
+            $myJson = json_encode(array("Exitcode" => $Exitcode, "data" => $myArray), true);
+            echo $myJson;
             break;
         case 'GetThePictures':
             $folder = 'uploads';
@@ -303,5 +302,11 @@ function listAllFiles($dir)
     return $array;
 }
 
+
+function newExecQuery($sql, $params)
+{
+
+    return $data;
+}
 ?>
 
