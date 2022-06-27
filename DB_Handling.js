@@ -1,33 +1,34 @@
 var myData;
 
 function TestExecuteQuery() {
-  $params=Array();  
-  $queryFunction = "GetAllByROWID";    
+  $myFunction = "ExecQuery";
+  $queryFunction = "GetAllByROWID";
 
+  $params = Array();
   AddParam($params, "integer", 4);
-  ExecQuery($queryFunction, $params, testCalback);
-}
 
+  ExecQuery($myFunction, $queryFunction, $params, testCalback);
+}
 function testCalback(data) {
   myData = data;
   console.log(myData);
 }
 
-function AddParam(Params, DataType, Value){  
-  Params.push({dataType: DataType, value: Value});
+function AddParam(Params, DataType, Value) {
+  Params.push({ dataType: DataType, value: Value });
 }
 
-function ExecQuery(myQuery, myParams, callback) {
+function ExecQuery(myFunction, myQuery, myParams, callback) {
   // Functie om diverse database select queries mee uit
   // te voeren en resultaat in te lezen.
   if (myParams == null) {
     $postData = {
-      function2call: "ExecQuery",
+      function2call: myFunction,
       queryFunction: myQuery,
     };
   } else {
     $postData = {
-      function2call: "ExecQuery",
+      function2call: myFunction,
       queryFunction: myQuery,
       params: myParams,
     };
@@ -46,11 +47,9 @@ function ExecQuery(myQuery, myParams, callback) {
         callback(response.data);
       }
     },
-    error: function (response) {    
+    error: function (response) {
       //alert("Error-> " + response.Exitcode);
       console.log("Error-> " + response.Exitcode);
     },
   });
 }
-
-

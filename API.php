@@ -2,6 +2,8 @@
 <?php
 include "Source/connection.php";
 include "QueryFunctions.php";
+include "StringFunctions.php";
+include "FileIOfunctions.php";
 
 //?function2call=GetAllIDs
 
@@ -12,72 +14,14 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
         die;
     }
     $function2call = $_POST['function2call'];
+    $queryFunction = $_POST['queryFunction'];    
 
     switch ($function2call) {
         // Bestanden hoofdpagina.
         case 'ExecQuery':
-            ;            
-            // Richt de (eventueel) geparameteriseerde query in. Als geen parameters, dan zonder uitvoeren.					
-            $sql = $_POST["queryFunction"]();
-
-            $stmt = $conn->prepare($sql);
-
-            if (isset($_POST["params"])) {
-                $params = $_POST["params"];
-
-                foreach ($params as $value) {
-
-                    if ($value["dataType"] == "string") {
-                        $value["dataType"] = "s";
-                    }
-                    else if ($value["dataType"] == "integer") {
-                        $value["dataType"] = "i";
-                    }
-
-                    $stmt->bind_param($value["dataType"], $value["value"]);
-                }
-            }
-
-            $stmt->execute();
-
-            $result = $stmt->get_result();
-            $data = $result->fetch_all(MYSQLI_ASSOC);
-
-            if ($data !== false) {
-                $Exitcode = 100;
-                echo json_encode(array("Exitcode" => $Exitcode, "data" => $data));
-            }
-            else {
-                $Exitcode = mysqli_error($conn);
-                echo json_encode(array("Exitcode" => $Exitcode));
-            }
-
-            CloseConnection();
-
-            mysqli_free_result($result);
-            unset($data);
-            break;
-        case 'ExecQuery2':
-            ;
-            $data = newExecQuery($_POST["queryFunction"](), $_POST["params"]);
-
-            
-            if ($data !== false) {
-                $Exitcode = 100;
-                echo json_encode(array("Exitcode" => $Exitcode, "data" => $data));
-            }
-            else {
-                $Exitcode = mysqli_error($conn);
-                echo json_encode(array("Exitcode" => $Exitcode));
-            }
-
-            CloseConnection();
-
-            mysqli_free_result($result);
-            unset($data);
+            echo ExecQuery($queryFunction, $_POST["params"], true);
             break;
         case 'GetNewestRecord':
-            ;
             // Richt de (eventueel) geparameteriseerde query in. Als geen parameters, dan zonder uitvoeren.					
             $sql = $_POST["function2call"]();
 
@@ -106,7 +50,6 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
             CloseConnection();
             break;
         case 'GetAllIDs':
-            ;
             // Richt de (eventueel) geparameteriseerde query in. Als geen parameters, dan zonder uitvoeren.					
             $sql = $_POST["function2call"]();
 
@@ -138,7 +81,6 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
             CloseConnection();
             break;
         case 'AddRecord':
-            ;
             // Richt de (eventueel) geparameteriseerde query in. Als geen parameters, dan zonder uitvoeren.					
             $sql = $_POST["function2call"]();
 
@@ -177,7 +119,6 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
             CloseConnection();
             break;
         case 'UpdateRecord':
-            ;
             // Richt de (eventueel) geparameteriseerde query in. Als geen parameters, dan zonder uitvoeren.					
             $sql = $_POST["function2call"]();
 
@@ -220,7 +161,6 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
             CloseConnection();
             break;
         case 'GetThePicture':
-
             $folder = 'uploads';
             $files = scandir($folder, true);
             $file = $folder . '/' . $files[0];
@@ -253,7 +193,7 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
                     $params = array($_POST["params"]);
                 }
 
-                if ($params[0] == DevellopSitePassword()) {
+                if ($params[0]['value'] == DevellopSitePassword()) {
                     $result = true;
                 }
                 else {
@@ -267,7 +207,30 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
             }
 
             if ($Exitcode == 100) {
-                echo json_encode(array("Exitcode" => $Exitcode, "Result" => $result));
+                echo json_encode(array("Exitcode" => $Exitcode, "data" => $result));
+            }
+            else {
+                echo json_encode(array("Exitcode" => $Exitcode));
+            }
+
+            break;
+        case 'GetData':
+            try {                
+                if (isset($_POST['params'])) {
+                    $params = $_POST['params'];
+                    $data = $queryFunction($params);
+                }
+                else {
+                    $data = $queryFunction();
+                }                                
+                $Exitcode = 100;
+            }
+            catch (\Throwable $th) {
+                $Exitcode = 404;
+            }
+
+            if ($Exitcode == 100) {
+                echo json_encode(array("Exitcode" => $Exitcode, "data" => $data));
             }
             else {
                 echo json_encode(array("Exitcode" => $Exitcode));
@@ -303,10 +266,64 @@ function listAllFiles($dir)
 }
 
 
-function newExecQuery($sql, $params)
+function ExecQuery($sql, $params, $jsonEncodedResult)
 {
+    global $conn;
+    $data = array();
 
-    return $data;
+    $stmt = $conn->prepare($sql);
+
+    if (isset($_POST["params"])) {
+        $params = $_POST["params"];
+
+        foreach ($params as $value) {
+            if ($value["dataType"] == "string") {
+                $value["dataType"] = "s";
+            }
+            else if ($value["dataType"] == "integer") {
+                $value["dataType"] = "i";
+            }
+            else if ($value["dataType"] == "double") {
+                $value["dataType"] = "d";
+            }
+            else if ($value["dataType"] == "blob") {
+                $value["dataType"] = "b";
+            }
+
+            $stmt->bind_param($value["dataType"], $value["value"]);
+        }
+    }
+
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+    $data = $result->fetch_all(MYSQLI_ASSOC);
+
+    if ($data !== false) {
+        $Exitcode = 100;
+        if ($jsonEncodedResult == true) {
+            $resultJson = json_encode(array("Exitcode" => $Exitcode, "data" => $data));
+        }
+        else {
+            $resultJson = array("Exitcode" => $Exitcode, "data" => $data);
+        }
+
+    }
+    else {
+        $Exitcode = mysqli_error($conn);
+        if ($jsonEncodedResult == true) {
+            $resultJson = json_encode(array("Exitcode" => $Exitcode));
+        }
+        else {
+            $resultJson = array("Exitcode" => $Exitcode);
+        }
+    }
+
+    unset($data);
+    mysqli_free_result($result);
+    CloseConnection();
+
+    return $resultJson;
 }
 ?>
 

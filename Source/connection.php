@@ -32,8 +32,4 @@ function test()
     return "TestDinges";
 }
 
-function DevellopSitePassword(){
-    return "DM@3DD.com";
-}
-
 ?>

@@ -118,16 +118,30 @@ function showEnterPasswordForm() {
 function EnterPassword(password) {
   if (event.key === "Enter") {
     ignoreEnter = true;
-    var pwd = $(".password").val();
+
+    var pwd = $(password).val();
 
     $(".EnterPasswordForm").remove();
 
-    if (pwd == "test") {
-      $(".DevellopCenter").show();
-      $(".DevellopCenter").focus();
-      $(".canvasStyle").hide();
-    }    
+    $myFunction = "CheckPassword";
+    $queryFunction = "DevellopSitePassword";
+    $params = Array();
+    AddParam($params, "string", pwd);
+    ExecQuery($myFunction, $queryFunction, $params, PwdCallback);
   } else if (event.key === "Escape") {
     $(".EnterPasswordForm").remove();
   }
+}
+
+function PwdCallback(data) {
+  if (data == true) {
+    SkipInlog();
+  }
+}
+
+function SkipInlog(){
+  $(".DevellopCenter").show();
+    $(".DevellopCenter").focus();
+    $(".canvasStyle").hide();
+    ShowAllTextFiles();
 }

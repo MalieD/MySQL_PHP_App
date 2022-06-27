@@ -1,0 +1,47 @@
+.DevellopCenter {
+  display: block;
+  position: fixed;
+  height: 100%;
+  width: 100%;
+}
+
+.Test {
+  position: relative;
+  padding: 10px;
+}
+
+.panel {
+  position: relative;
+  padding: 10px;
+  background-color: bisque;
+}
+
+.panelLeft {
+  position: fixed;
+  padding-left: 5px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-right: calc(50% - 5px);
+  background-color: darkcyan;
+}
+
+.panelRight {
+  position: fixed;
+  padding-left: calc(50% + 5px);
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-right: 5px;
+  background-color: darkolivegreen;
+}
+
+.item {
+  position: relative;
+  padding: 5px;
+  color: blue;
+  cursor: pointer !important;
+  text-decoration: underline;
+}
+
+.itemSelected {
+  color: blueviolet !important;
+}

@@ -1,10 +1,5 @@
 <?php
 
-function ExecQuery()
-{
-    return 'SELECT waarden FROM `mijntesttabel` WHERE ROWID=?';
-}
-
 function GetNewestRecord()
 {
     return 'SELECT Waarden FROM `mijntesttabel` ORDER BY ROWID DESC LIMIT 1';
@@ -43,9 +38,10 @@ function LoadPhotoPath()
 function UpdateRecord()
 {
     return 'UPDATE mijntesttabel 
-                SET waarden=? 
-                WHERE ROWID=?';
+            SET waarden=? 
+            WHERE ROWID=?';
 }
+
 
 
 ?>
