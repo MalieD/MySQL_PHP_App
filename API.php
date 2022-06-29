@@ -13,8 +13,17 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
         trigger_error('Function call is te lang.', E_USER_ERROR);
         die;
     }
+
     $function2call = $_POST['function2call'];
-    $queryFunction = $_POST['queryFunction'];    
+
+    if (isset($_POST['queryFunction']) && !empty($_POST['queryFunction'])) {
+        if (strlen($_POST['queryFunction']) > 50) {
+            trigger_error('queryFunction is te lang.', E_USER_ERROR);
+            die;
+        }
+
+        $queryFunction = $_POST['queryFunction'];
+    }
 
     switch ($function2call) {
         // Bestanden hoofdpagina.
@@ -169,6 +178,13 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
             echo $base64;
 
             break;
+        case 'GetSinglePicture':
+            $folder = 'uploads';
+            $file = $folder . '/' . $queryFunction;
+            $imagedata = file_get_contents($file);
+            $base64 = base64_encode($imagedata);
+            echo $base64;
+            break;
         case 'GetThePictureNames':
             $myArray = listAllFiles("uploads");
             $Exitcode = 100;
@@ -215,14 +231,14 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
 
             break;
         case 'GetData':
-            try {                
+            try {
                 if (isset($_POST['params'])) {
                     $params = $_POST['params'];
                     $data = $queryFunction($params);
                 }
                 else {
                     $data = $queryFunction();
-                }                                
+                }
                 $Exitcode = 100;
             }
             catch (\Throwable $th) {
