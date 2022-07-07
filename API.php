@@ -2,33 +2,25 @@
 <?php
 include "Source/connection.php";
 include "QueryFunctions.php";
+include "ImageFunctions.php";
 include "StringFunctions.php";
 include "FileIOfunctions.php";
 
 //?function2call=GetAllIDs
 
+$function2call = validate_Function2Call();
+$queryFunction= validate_QueryFunction();
+$params = validate_Params();
+
 // Afvangen van de call voor welke functie aangeroepen wordt.
-if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
-    if (strlen($_POST['function2call']) > 50) {
-        trigger_error('Function call is te lang.', E_USER_ERROR);
-        die;
-    }
-
-    $function2call = $_POST['function2call'];
-
-    if (isset($_POST['queryFunction']) && !empty($_POST['queryFunction'])) {
-        if (strlen($_POST['queryFunction']) > 50) {
-            trigger_error('queryFunction is te lang.', E_USER_ERROR);
-            die;
-        }
-
-        $queryFunction = $_POST['queryFunction'];
-    }
-
+if ($function2call != null && $queryFunction != null) {    
     switch ($function2call) {
         // Bestanden hoofdpagina.
         case 'ExecQuery':
-            echo ExecQuery($queryFunction, $_POST["params"], true);
+            echo ExecQuery($queryFunction, $params, true);
+            break;
+        case 'GetData':
+            echo GetData($queryFunction, $params, true);
             break;
         case 'GetNewestRecord':
             // Richt de (eventueel) geparameteriseerde query in. Als geen parameters, dan zonder uitvoeren.					
@@ -179,11 +171,15 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
 
             break;
         case 'GetSinglePicture':
-            $folder = 'uploads';
+            $folder = './uploads';
             $file = $folder . '/' . $queryFunction;
-            $imagedata = file_get_contents($file);
-            $base64 = base64_encode($imagedata);
-            echo $base64;
+            if ($params==null) {
+                $test = GetPicture($file, 100, true); 
+            } else {
+                $test = GetPicture($file, 100, $params); 
+            }
+            
+            echo $test;
             break;
         case 'GetThePictureNames':
             $myArray = listAllFiles("uploads");
@@ -230,29 +226,6 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
             }
 
             break;
-        case 'GetData':
-            try {
-                if (isset($_POST['params'])) {
-                    $params = $_POST['params'];
-                    $data = $queryFunction($params);
-                }
-                else {
-                    $data = $queryFunction();
-                }
-                $Exitcode = 100;
-            }
-            catch (\Throwable $th) {
-                $Exitcode = 404;
-            }
-
-            if ($Exitcode == 100) {
-                echo json_encode(array("Exitcode" => $Exitcode, "data" => $data));
-            }
-            else {
-                echo json_encode(array("Exitcode" => $Exitcode));
-            }
-
-            break;
         default:
             header("HTTP/1.1 404");
             break;
@@ -260,6 +233,46 @@ if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
 }
 else {
     echo "Well, it seems like this didn't really work...";
+}
+
+function validate_Function2Call()
+{
+    if (isset($_POST['function2call']) && !empty($_POST['function2call'])) {
+        if (strlen($_POST['function2call']) > 50) {
+            trigger_error('Function call is te lang.', E_USER_ERROR);
+            die;
+        }
+
+        return $_POST['function2call'];
+    }
+    else {
+        return null;
+    }
+}
+
+function validate_QueryFunction()
+{
+    if (isset($_POST['queryFunction']) && !empty($_POST['queryFunction'])) {
+        if (strlen($_POST['queryFunction']) > 50) {
+            trigger_error('Function call is te lang.', E_USER_ERROR);
+            die;
+        }
+
+        return $_POST['queryFunction'];
+    }
+    else {
+        return null;
+    }
+}
+
+function validate_Params()
+{
+    if (isset($_POST['params']) && !empty($_POST['params'])) {
+        return $_POST['params'];
+    }
+    else {
+        return null;
+    }
 }
 
 function listAllFiles($dir)
@@ -280,7 +293,6 @@ function listAllFiles($dir)
 
     return $array;
 }
-
 
 function ExecQuery($sql, $params, $jsonEncodedResult)
 {
@@ -340,6 +352,39 @@ function ExecQuery($sql, $params, $jsonEncodedResult)
     CloseConnection();
 
     return $resultJson;
+}
+
+function GetData($function, $params, $jsonEncodedResult)
+{
+    try {
+        if ($params<>"") {            
+            $data = $function($params);
+        }
+        else {
+            $data = $function();
+        }
+        $Exitcode = 100;
+    }
+    catch (\Throwable $th) {
+        $Exitcode = 404;
+    }
+
+    if ($Exitcode == 100) {
+        if ($jsonEncodedResult == true) {
+            return json_encode(array("Exitcode" => $Exitcode, "data" => $data));
+        }
+        else {
+            return array("Exitcode" => $Exitcode, "data" => $data);
+        }
+    }
+    else {
+        if ($jsonEncodedResult == true) {
+            return json_encode(array("Exitcode" => $Exitcode));
+        }
+        else {
+            return array("Exitcode" => $Exitcode);
+        }
+    }
 }
 ?>
 

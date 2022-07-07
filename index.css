@@ -5,39 +5,46 @@
   width: 100%;
 }
 
-.Test {
-  position: relative;
-  padding: 10px;
-}
-
 .panel {
-  position: relative;
+  display: block;
+  position: relative;  
+  width: 100%;
+  height: 100%;
   padding: 10px;
-  background-color: bisque;
+  background-color: rgba(0, 0, 10, 1);
 }
 
 .panelLeft {
-  position: fixed;
-  padding-left: 5px;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  padding-right: calc(50% - 5px);
-  background-color: darkcyan;
+  display: block;
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  width: calc(50% - 20px);
+  height: calc(100% - 30px);
+  margin: 5px;
+  background-color: rgba(0, 0, 255, 0.1);
+  overflow: hidden;
+  scroll-behavior: auto;
 }
 
 .panelRight {
-  position: fixed;
-  padding-left: calc(50% + 5px);
-  padding-top: 5px;
-  padding-bottom: 5px;
-  padding-right: 5px;
-  background-color: darkolivegreen;
+  display: block;
+  position: absolute;  
+  right: 25px;
+  top: 5px;
+  width: calc(50% - 20px);
+  height: calc(100% - 30px);
+  margin: 5px;
+  background-color: rgba(0, 0, 255, 0.1);;
+  color: greenyellow;
+  overflow: hidden;
+  scroll-behavior: auto;
 }
 
 .item {
   position: relative;
   padding: 5px;
-  color: blue;
+  color: greenyellow;
   cursor: pointer !important;
   text-decoration: underline;
 }

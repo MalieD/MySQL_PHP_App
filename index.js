@@ -1,8 +1,6 @@
 function run() {
-  StartMatrix();
+  //StartMatrix();
   SkipInlog();
-  //TestExecuteQuery();
-  ExecQuery("GetData", "GetAllTextFiles", Array(), ShowAllTextFiles);
 }
 
 function ShowAllPictures() {}
@@ -20,10 +18,9 @@ function ShowAllTextFiles(data) {
   }
 }
 
-function OpenFile(source, filename) {  
-  debugger;
-  var file = $(`.${source}`);  
-  var params = Array();  
+function OpenFile(source, filename) {
+  var file = $(`.${source}`);
+  var params = Array();
   AddParam(params, "string", filename);
   ExecQuery("GetData", "GetTextFile", params, ShowContents);
 
@@ -31,5 +28,8 @@ function OpenFile(source, filename) {
 }
 
 function ShowContents(data) {
-  console.log(data);
+  var image = new Image();
+  image.src = "data:image/png;base64," + data;
+  //$(".panelRight")[0].innerText = data;
+  $(".panelRight").append(image);
 }

@@ -143,5 +143,6 @@ function SkipInlog(){
   $(".DevellopCenter").show();
     $(".DevellopCenter").focus();
     $(".canvasStyle").hide();
-    ShowAllTextFiles();
+    ExecQuery("GetData", "GetAllTextFiles", Array(), ShowAllTextFiles);
+    //ShowAllTextFiles();
 }

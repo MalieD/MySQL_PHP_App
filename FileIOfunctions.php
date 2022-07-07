@@ -15,14 +15,29 @@ function GetAllTextFiles()
 function GetTextFile($params)
 {
     $filename = $params[0]['value'];
-    
+
     try {
         $file = file_get_contents($filename, true);
-    } catch (\Throwable $th) {
-        //throw $th;
+
+        if (FileIsImage($filename) == true) {
+            $file = base64_encode($file);
+        }        
+    }
+    catch (\Throwable $th) {
+    //throw $th;
     }
 
     return $file;
+}
+
+function FileIsImage($file)
+{
+    if (getimagesize($file) ? true : false) {
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 
 
