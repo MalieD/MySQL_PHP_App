@@ -10,9 +10,19 @@ function GetAllIDs()
     return 'SELECT ROWID FROM `mijntesttabel` ORDER BY ROWID';
 }
 
+function GetAllWaarden()
+{
+    return 'SELECT waarden FROM `mijntesttabel` ORDER BY ROWID';
+}
+
 function GetWaardenByROWID()
 {
     return 'SELECT waarden FROM `mijntesttabel` WHERE ROWID=?';
+}
+
+function GetAll()
+{
+    return 'SELECT * FROM `mijntesttabel` WHERE ROWID>23 ORDER BY ROWID';
 }
 
 function GetAllByROWID()

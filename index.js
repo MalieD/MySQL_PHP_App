@@ -1,6 +1,6 @@
 function run() {
-  //StartMatrix();
-  SkipInlog();
+  StartMatrix();
+  //SkipInlog();
 }
 
 function ShowAllPictures() {}

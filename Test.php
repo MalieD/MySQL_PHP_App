@@ -32,9 +32,10 @@
 // CloseConnection();
 
 
-$imagedata = file_get_contents('./Plaatjes/abc.jpeg');
-$base64 = base64_encode($imagedata);
-echo $base64;
+// $imagedata = file_get_contents('./Plaatjes/abc.jpeg');
+// $base64 = base64_encode($imagedata);
+// echo $base64;
 
+phpinfo();
 
 ?>

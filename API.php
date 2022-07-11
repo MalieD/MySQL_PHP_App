@@ -6,18 +6,16 @@ include "ImageFunctions.php";
 include "StringFunctions.php";
 include "FileIOfunctions.php";
 
-//?function2call=GetAllIDs
-
 $function2call = validate_Function2Call();
 $queryFunction= validate_QueryFunction();
 $params = validate_Params();
 
 // Afvangen van de call voor welke functie aangeroepen wordt.
-if ($function2call != null && $queryFunction != null) {    
+if ($function2call != null) {    
     switch ($function2call) {
         // Bestanden hoofdpagina.
         case 'ExecQuery':
-            echo ExecQuery($queryFunction, $params, true);
+            echo ExecQuery($queryFunction(), $params, false);
             break;
         case 'GetData':
             echo GetData($queryFunction, $params, true);
@@ -52,8 +50,7 @@ if ($function2call != null && $queryFunction != null) {
             break;
         case 'GetAllIDs':
             // Richt de (eventueel) geparameteriseerde query in. Als geen parameters, dan zonder uitvoeren.					
-            $sql = $_POST["function2call"]();
-
+            $sql = $function2call();
             $data = mysqli_query($conn, $sql);
 
             if ($data === false) {
@@ -68,12 +65,13 @@ if ($function2call != null && $queryFunction != null) {
                     $result = array();
 
                     while ($row = mysqli_fetch_row($data)) {
-                        array_push($result, $row[0]);
+                        $result = array($row[0]);
+                        //array_push($result, $row[0]);
                     }
                 }
 
                 //echo json_encode(array("Data" => $result));
-                echo json_encode($result);
+                echo json_encode(array("Exitcode" => $Exitcode, "result" => $result));
             }
             else {
                 echo json_encode(array("Exitcode" => $Exitcode));
@@ -182,9 +180,9 @@ if ($function2call != null && $queryFunction != null) {
             echo $test;
             break;
         case 'GetThePictureNames':
-            $myArray = listAllFiles("uploads");
+            $data = listAllFiles("uploads");            
             $Exitcode = 100;
-            $myJson = json_encode(array("Exitcode" => $Exitcode, "data" => $myArray), true);
+            $myJson = json_encode(array("Exitcode" => $Exitcode, "data" => $data), true);
             echo $myJson;
             break;
         case 'GetThePictures':
@@ -197,14 +195,7 @@ if ($function2call != null && $queryFunction != null) {
 
             break;
         case 'CheckPassword':
-            if (isset($_POST["params"])) {
-                if (is_array($_POST["params"])) {
-                    $params = $_POST["params"];
-                }
-                else {
-                    $params = array($_POST["params"]);
-                }
-
+            if ($params!=null) {
                 if ($params[0]['value'] == DevellopSitePassword()) {
                     $result = true;
                 }
@@ -225,7 +216,7 @@ if ($function2call != null && $queryFunction != null) {
                 echo json_encode(array("Exitcode" => $Exitcode));
             }
 
-            break;
+            break;        
         default:
             header("HTTP/1.1 404");
             break;
@@ -325,7 +316,7 @@ function ExecQuery($sql, $params, $jsonEncodedResult)
     $stmt->execute();
 
     $result = $stmt->get_result();
-    $data = $result->fetch_all(MYSQLI_ASSOC);
+    $data = $result->fetch_all(MYSQLI_ASSOC);    
 
     if ($data !== false) {
         $Exitcode = 100;
@@ -335,7 +326,6 @@ function ExecQuery($sql, $params, $jsonEncodedResult)
         else {
             $resultJson = array("Exitcode" => $Exitcode, "data" => $data);
         }
-
     }
     else {
         $Exitcode = mysqli_error($conn);
@@ -351,7 +341,7 @@ function ExecQuery($sql, $params, $jsonEncodedResult)
     mysqli_free_result($result);
     CloseConnection();
 
-    return $resultJson;
+    return json_encode($resultJson);
 }
 
 function GetData($function, $params, $jsonEncodedResult)
@@ -386,5 +376,7 @@ function GetData($function, $params, $jsonEncodedResult)
         }
     }
 }
+
+
 ?>
 
